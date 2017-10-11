@@ -2,6 +2,8 @@
 
 This is the code behind the twitter-bot [@the_random_art](https://twitter.com/the_random_art).
 
+**It should be executed with Python2**
+
 ![alt text](https://pbs.twimg.com/media/DL0UtCNWAAA9Qgc.jpg "Logo")
 
 It includes the Python code to:
