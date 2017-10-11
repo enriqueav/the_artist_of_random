@@ -24,7 +24,7 @@ git clone https://github.com/enriqueav/the_artist_of_random.git
 cd the_artist_of_random.git
 ```
 
-Modify rnd_image_bot.py to add your own Twitter credentials (obtain them at [https://apps.twitter.com/app/new](https://apps.twitter.com/app/new)):
+Modify src/rnd_image_bot.py to add your own Twitter credentials (obtain them at [https://apps.twitter.com/app/new](https://apps.twitter.com/app/new)):
 
 ```python
 CONSUMER_KEY = ''     # your key here
@@ -33,11 +33,12 @@ ACCESS_KEY = ''       # your key here
 ACCESS_SECRET = ''    # your secret here
 ```
 
-You might need to install Pillow and Tweepy first
+You might need to install Pillow, Tweepy and numpy first
 
 ```sh
 pip install tweepy
 pip install Pillow
+pip install numpy
 ```
 
 Finally, to run it
