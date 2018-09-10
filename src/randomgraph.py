@@ -26,7 +26,7 @@ def image(file_name, debug=False):
             0.06, 0.05, 0.05, 0.01, 0.01, 0.01],
         # size of the canvas and the probability of each one
         s_size=[128, 256, 512, 1024, 2048],
-        p_size=[0.0, 0.0, 0.0, 0.0, 1]
+        p_size=[0.1, 0.1, 0.3, 0.3, 0.2]
     )
     # chose colorset, quantity of shapes and size from config
     color_set = choice(config["s_colorset"], p=config["p_colorset"])
