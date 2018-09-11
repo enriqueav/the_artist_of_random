@@ -2,7 +2,7 @@
 randomgraph module.
 Uses shape_factory to create a new random image
 """
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageChops
 from numpy.random import choice
 from shape_factory import ShapeFactory
 from post_efects import mirror
@@ -67,18 +67,21 @@ def image(file_name=None, show=False, debug=False):
         print("mirroring axis 2 = %r" % mirroring_axis2)
 
     factory = ShapeFactory(size)
-    img = Image.new(
+    canvas = Image.new(
         'RGB',
         (size, int((size/aspect[0])*aspect[1])),
         color=factory.get_color_from_set(colorset_info)
     )
-    draw = ImageDraw.Draw(img, 'RGBA')
+    img = canvas.copy()
 
-    for _ in range(quantity):
-        factory.create_shape(colorset_info).draw(draw)
-
-    img = mirror(img, mirroring_axis1)
-    img = mirror(img, mirroring_axis2)
+    # avoid empty canvas
+    while ImageChops.difference(canvas, img).getbbox() is None:
+        draw = ImageDraw.Draw(img, 'RGBA')
+        for _ in range(quantity):
+            factory.create_shape(colorset_info).draw(draw)
+        # post effects
+        img = mirror(img, mirroring_axis1)
+        img = mirror(img, mirroring_axis2)
 
     if file_name:
         img.save(file_name)
