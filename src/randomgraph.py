@@ -38,8 +38,8 @@ def image(file_name=None, show=False, debug=False):
 
         # mirroring in half, negative means lowerX or rightY
         s_mirroring=[None, "h", "v", "-h", "-v"],
-        p_mirroring1=[0.90, 0.025, 0.025, 0.025, 0.025],
-        p_mirroring2=[0.92, 0.02, 0.02, 0.02, 0.02]
+        p_mirroring1=[0.80, 0.05, 0.05, 0.05, 0.05],
+        p_mirroring2=[0.90, 0.025, 0.025, 0.025, 0.025]
     )
 
     # chose colorset, quantity of shapes and size from config
