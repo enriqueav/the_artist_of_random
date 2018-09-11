@@ -16,6 +16,14 @@ It does not include:
 
 * The talent of a real Artist
 
+### What's new in version 1.2: *2018-09-11*
+
+* Pick a random aspect ratio, 1:1, 4:3, 19:6
+* Use of alpha channel to *possibly* create opaque shapes
+* Optional mirroring effects, vertical, horizontal or both
+* New file `src/tester.py` to launch images and automatically open them
+* Tuned the probabilities of several parameters and numbers
+
 ## How to clone and install
 
 Clone the repository
