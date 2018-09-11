@@ -33,16 +33,19 @@ class ShapeFactory(object):
         )
 
     @classmethod
-    def get_rgb_color(cls):
+    def get_rgb_color(cls, use_alpha=False):
         """
         get_color
 
-        Get a tuple of 3 values representing R, G, B picked at random
+        Get 4 values representing R, G, B and Alpha picked at random
         """
+        alpha = 255
         red = randint(0, 255)
         green = randint(0, 255)
         blue = randint(0, 255)
-        return red, green, blue
+        if use_alpha:
+            alpha = randint(0, 255)
+        return red, green, blue, alpha
 
     @classmethod
     def get_bw(cls):
@@ -50,32 +53,41 @@ class ShapeFactory(object):
         get_bw
 
         Return "white" or "black" with equal probability
+        Won't use alpha in this case
         """
-        return choice(["white", "black"])
+        if choice(["white", "black"]) == "white":
+            return 255, 255, 255
+        return 0, 0, 0, 255
 
     @classmethod
-    def get_gray(cls):
+    def get_gray(cls, use_alpha=False):
         """
         get_gray
 
         Return an RGB color where r == g == b, meaning, is a gray
         """
+        alpha = 255
+        if use_alpha:
+            alpha = randint(0, 255)
         level = randint(0, 255)
-        return level, level, level
+        return level, level, level, alpha
 
-    def get_color_from_set(self, colorset):
+    def get_color_from_set(self, color_info):
         """
         get_color_from_set
 
         Depending on the colorset ("color", "bw", "gs") return a color
         at random
         """
+        colorset = color_info["colorset"]
+        use_alpha = color_info["use_alpha"]
+
         if colorset == "color":
-            color = self.get_rgb_color()
+            color = self.get_rgb_color(use_alpha=use_alpha)
         elif colorset == "bw":
             color = self.get_bw()
         elif colorset == "gs":
-            color = self.get_gray()
+            color = self.get_gray(use_alpha=use_alpha)
         else:
             raise ValueError("Unsupported color set ")
         return color
@@ -96,13 +108,14 @@ class ShapeFactory(object):
         """
         return [self.get_random_value() for _ in range(0, quantity)]
 
-    def get_outline_color_from_set(self, colorset):
+    def get_outline_color_from_set(self, colorset_info):
         """
         get_outline_color_from_set
 
         Get the color of the outline, depending on the colorset chosen
         ("color", "gs" or "bw") the logic if different
         """
+        colorset = colorset_info["colorset"]
         # This needs to be executed every time to get new random values
         colors = [None, self.get_rgb_color(), self.get_gray(), self.get_bw()]
         if colorset == "color":
@@ -115,7 +128,7 @@ class ShapeFactory(object):
             raise ValueError("Unsupported color set ")
         return color
 
-    def create_shape(self, colorset="color"):
+    def create_shape(self, colorset_info):
         """
         create_shape
 
@@ -126,8 +139,8 @@ class ShapeFactory(object):
         Additionally, it may add a repetition offset to the shape created
         """
         shape_type = choice(self.config["s_shapes"], p=self.config["p_shapes"])
-        color = self.get_color_from_set(colorset)
-        outline = self.get_outline_color_from_set(colorset)
+        color = self.get_color_from_set(colorset_info)
+        outline = self.get_outline_color_from_set(colorset_info)
 
         if shape_type == "r":
             shape = Rectangle(self.get_coordinates(4), color, outline)
