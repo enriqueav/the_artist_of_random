@@ -43,22 +43,42 @@ pip install numpy
 
 ## Generate images locally
 
-To create an image and save it to a temporary file
+To create an image and immediately show it:
 
 ```bash
-$ python src/tester.py /tmp/filename.png
-$ open /tmp/filename.png
+$ python src/tester.py 
 ```
 
-Or to run it in debug mode
+To run it in debug mode:
 
 ```bash
-$ python src/tester.py /tmp/filename.png --debug
+$ python src/tester.py --debug
 Debug mode is ON
 Selected values: 
 colorset = color
-quantity of shapes=3
-size = 256
+use alpha = False
+quantity of shapes = 4
+size = 1024
+aspect ratio = 1:1
+mirroring axis 1 = 'h'
+mirroring axis 2 = None
+```
+
+To save the image to a file
+
+```bash
+$ python src/tester.py /tmp/file.png --debug
+Debug mode is ON
+Selected values: 
+colorset = gs
+use alpha = False
+quantity of shapes = 4
+size = 128
+aspect ratio = 4:3
+mirroring axis 1 = 'h'
+mirroring axis 2 = None
+$ file /tmp/file.png 
+/tmp/file.png: PNG image data, 128 x 96, 8-bit/color RGB, non-interlaced
 ```
 
 
