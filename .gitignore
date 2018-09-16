@@ -104,3 +104,4 @@ ENV/
 **/.DS_Store
 
 taor/examples/*
+config.py
