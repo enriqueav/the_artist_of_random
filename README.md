@@ -107,13 +107,7 @@ ACCESS_KEY = ''       # your key here
 ACCESS_SECRET = ''    # your secret here
 ```
 
-After setting the keys you can start the process with this command:
-
-```sh
-$ python3 src/rnd_image_bot.py
-```
-
-The waiting time between each published image is also calculated randomly. You can specify the minimum and the maximum waiting time (in minutes) using the command line arguments:
+After setting the keys you can start the process with this command. The waiting time between each published image is also calculated randomly. You can specify the minimum and the maximum waiting time (in minutes) using the command line arguments:
 
 ```bash
 $ python3 twitter_bot.py 10 200
