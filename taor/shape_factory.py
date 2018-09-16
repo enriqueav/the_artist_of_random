@@ -3,7 +3,8 @@ shapeFactory module.
 Contains the abstract class Shape and all its children
 """
 from numpy.random import choice, randint
-from shapes import Rectangle, Ellipse, Circle, Polygon
+from taor.shapes import SimpleShape, Rectangle, Circle, Ellipse, Polygon
+from taor.generators import Lasso, Explosion, StainGrid, Worm
 
 
 class ShapeFactory(object):
@@ -12,24 +13,25 @@ class ShapeFactory(object):
     The factory class needs to be instantiated, it does not have the factory
     method as Abstract
     """
-    s_shapes = ["r", "c", "e", "p"]
-
     def __init__(self, size):
         self.size = size
         self.config = dict(
             s_polygon_points=[6, 8, 10, 12, 14, 16],
             p_polygon_points=[0.3, 0.28, 0.17, 0.12, 0.08, 0.05],
 
-            s_shapes=["r", "c", "e", "p"],
-            p_shapes=[0.4, 0.3, 0.2, 0.1],
+            s_shapes=["r", "c", "e", "p", "l", "x", "s", "w"],
+            # p_shapes=[0.05, 0.1, 0.05, 0.1, 0.15, 0.20, 0.18, 0.15],
+            p_shapes=[0.05, 0.06, 0.05, 0.12, 0.21, 0.14, 0.20, 0.17],
 
+            # repetition False, True
             p_repetition=[0.1, 0.9],
             s_offset_direction=["x", "y", "xy"],
             p_offset_direction=[0.4, 0.4, 0.2],
 
-            p_outline_color=[0.7, 0.1, 0.1, 0.1],
-            p_outline_gs=[0.7, 0, 0.15, 0.15],
-            p_outline_bw=[0.8, 0, 0, 0.2]
+            p_outline_color=[0.9, 0.1],
+            # Going to be unsupported
+            # p_outline_gs=[0.7, 0, 0.15, 0.15],
+            # p_outline_bw=[0.8, 0, 0, 0.2]
         )
 
     @classmethod
@@ -40,37 +42,12 @@ class ShapeFactory(object):
         Get 4 values representing R, G, B and Alpha picked at random
         """
         alpha = 255
-        red = randint(0, 255)
-        green = randint(0, 255)
-        blue = randint(0, 255)
+        red = randint(0, 256)
+        green = randint(0, 256)
+        blue = randint(0, 256)
         if use_alpha:
-            alpha = randint(0, 255)
+            alpha = randint(0, 256)
         return red, green, blue, alpha
-
-    @classmethod
-    def get_bw(cls):
-        """
-        get_bw
-
-        Return "white" or "black" with equal probability
-        Won't use alpha in this case
-        """
-        if choice(["white", "black"]) == "white":
-            return 255, 255, 255
-        return 0, 0, 0, 255
-
-    @classmethod
-    def get_gray(cls, use_alpha=False):
-        """
-        get_gray
-
-        Return an RGB color where r == g == b, meaning, is a gray
-        """
-        alpha = 255
-        if use_alpha:
-            alpha = randint(0, 255)
-        level = randint(0, 255)
-        return level, level, level, alpha
 
     def get_color_from_set(self, color_info):
         """
@@ -84,21 +61,18 @@ class ShapeFactory(object):
 
         if colorset == "color":
             color = self.get_rgb_color(use_alpha=use_alpha)
-        elif colorset == "bw":
-            color = self.get_bw()
-        elif colorset == "gs":
-            color = self.get_gray(use_alpha=use_alpha)
         else:
-            raise ValueError("Unsupported color set ")
+            raise ValueError("Unsupported color set BW and GS are going to disappear")
         return color
 
     def get_random_value(self):
         """
         get_random_value
 
-        Return a random value between 0 and the size of the canvas
+        Return a random value between 0 and the size of the canvas +- size/6
         """
-        return randint(0, self.size)
+        delta = int(self.size/6)
+        return randint(-delta, self.size+delta)
 
     def get_coordinates(self, quantity):
         """
@@ -106,7 +80,7 @@ class ShapeFactory(object):
 
         Get a list of random values with. The size of the list will be quantity
         """
-        return [self.get_random_value() for _ in range(0, quantity)]
+        return [self.get_random_value() for _ in range(quantity)]
 
     def get_outline_color_from_set(self, colorset_info):
         """
@@ -117,15 +91,11 @@ class ShapeFactory(object):
         """
         colorset = colorset_info["colorset"]
         # This needs to be executed every time to get new random values
-        colors = [None, self.get_rgb_color(), self.get_gray(), self.get_bw()]
+        colors = [None, self.get_rgb_color()]
         if colorset == "color":
             color = choice(colors, p=self.config["p_outline_color"])
-        elif colorset == "gs":
-            color = choice(colors, p=self.config["p_outline_gs"])
-        elif colorset == "bw":
-            color = choice(colors, p=self.config["p_outline_bw"])
         else:
-            raise ValueError("Unsupported color set ")
+            raise ValueError("Unsupported color set BW and GS are going to disappear")
         return color
 
     def create_shape(self, colorset_info):
@@ -154,8 +124,20 @@ class ShapeFactory(object):
                 p=self.config["p_polygon_points"]
             )
             shape = Polygon(self.get_coordinates(how_many_vertices), color, outline)
+        elif shape_type == "l":
+            shape = Lasso(self.get_coordinates(2), color)
+        elif shape_type == "x":
+            shape = Explosion(self.get_coordinates(2), color)
+        elif shape_type == "s":
+            shape = StainGrid(self.get_coordinates(2), color)
+        elif shape_type == "w":
+            shape = Worm(self.get_coordinates(2), color)
+        else:
+            print("shape_factory.create_shape error, shape %s not supported" % shape_type)
+            exit(0)
 
-        if choice(a=[True, False], p=self.config["p_repetition"]):
+        repetition = choice(a=[True, False], p=self.config["p_repetition"])
+        if isinstance(shape, SimpleShape) and repetition:
             offset_direction = choice(
                 self.config["s_offset_direction"],
                 p=self.config["p_offset_direction"]

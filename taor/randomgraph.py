@@ -2,43 +2,48 @@
 randomgraph module.
 Uses shape_factory to create a new random image
 """
+import numpy as np
 from PIL import Image, ImageDraw, ImageChops
 from numpy.random import choice
-from shape_factory import ShapeFactory
-from post_efects import mirror
+from taor.shape_factory import ShapeFactory
+from taor.post_efects import mirror, mirror_box
 
 
-def image(file_name=None, show=False, debug=False):
+def random_image(file_name=None, show=False, debug=False, seed=None):
     """
     image
 
     Create a new random image and save it to file_name
     """
+    if seed:
+        np.random.seed(seed)
+
     config = dict(
         # color, grayscale or black and white and their probabilities
+        # for now V2 is only color
         s_colorset=["color", "gs", "bw"],
-        p_colorset=[0.4, 0.3, 0.3],
+        p_colorset=[1, 0, 0],
 
         # use alpha [False, True]
         p_use_alpha=[0.7, 0.3],
 
-        # quantity of shapes to add and their probabilities
-        s_quantity=[
-            1, 2, 3, 4, 5, 6,
-            7, 8, 9, 10, 50, 100],
-        p_quantity=[
-            0.05, 0.19, 0.21, 0.15, 0.11, 0.10,
-            0.06, 0.05, 0.05, 0.01, 0.01, 0.01],
+        s_quantity=[1, 2, 3, 4],
+        p_quantity=[0.55, 0.30, 0.10, 0.05],
+
         # size of the canvas and the probability of each one
-        s_size=[128, 256, 512, 1024, 2048],
-        p_size=[0.1, 0.1, 0.3, 0.4, 0.1],
+        s_size=[512, 1024, 2048],
+        p_size=[0.3, 0.6, 0.1],
 
         s_aspect=["1:1", "4:3", "16:9"],
         p_aspect=[0.3, 0.5, 0.2],
 
+        # mirror a box
+        s_mirror_box=[None, "h", "v"],
+        p_mirror_box=[0.95, 0.025, 0.025],
+
         # mirroring in half, negative means lowerX or rightY
         s_mirroring=[None, "h", "v", "-h", "-v"],
-        p_mirroring1=[0.80, 0.05, 0.05, 0.05, 0.05],
+        p_mirroring1=[0.90, 0.025, 0.025, 0.025, 0.025],
         p_mirroring2=[0.90, 0.025, 0.025, 0.025, 0.025]
     )
 
@@ -55,6 +60,7 @@ def image(file_name=None, show=False, debug=False):
     aspect = int(aspect.split(":")[0]), int(aspect.split(":")[1])
     mirroring_axis1 = choice(config["s_mirroring"], p=config["p_mirroring1"])
     mirroring_axis2 = choice(config["s_mirroring"], p=config["p_mirroring2"])
+    mirror_box_axis = choice(config["s_mirror_box"], p=config["p_mirror_box"])
 
     if debug:
         print("Selected values: ")
@@ -63,6 +69,7 @@ def image(file_name=None, show=False, debug=False):
         print("quantity of shapes = %d" % quantity)
         print("size = %d" % size)
         print("aspect ratio = %d:%d" % (aspect[0], aspect[1]))
+        print("mirroring box axis = %r" % mirror_box_axis)
         print("mirroring axis 1 = %r" % mirroring_axis1)
         print("mirroring axis 2 = %r" % mirroring_axis2)
 
@@ -80,11 +87,14 @@ def image(file_name=None, show=False, debug=False):
         for _ in range(quantity):
             factory.create_shape(colorset_info).draw(draw)
         # post effects
+        img = mirror_box(img, mirror_box_axis)
         img = mirror(img, mirroring_axis1)
         img = mirror(img, mirroring_axis2)
 
     if file_name:
-        img.save(file_name)
+        if ".png" not in file_name.lower():
+            file_name += ".png"
+        img.save(file_name, "PNG")
 
     if show:
         img.show()

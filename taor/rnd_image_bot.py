@@ -8,14 +8,11 @@ import os
 from random import randint
 import tweepy
 import randomgraph
+import config
 
 # add your own credentials
-CONSUMER_KEY = ''
-CONSUMER_SECRET = ''
-ACCESS_KEY = ''
-ACCESS_SECRET = ''
-auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
+auth = tweepy.OAuthHandler(config.CONSUMER_KEY, config.CONSUMER_SECRET)
+auth.set_access_token(config.ACCESS_KEY, config.ACCESS_SECRET)
 api = tweepy.API(auth)
 
 
@@ -35,7 +32,9 @@ if __name__ == "__main__":
     debug = False
     # check for correct argument size
     if len(sys.argv) > 3:
-        print('\033[91m' + 'Argument Error!\nUsage: python rnd_image_bot.py [min_wait_time] [max_wait_time]' + '\033[0m')
+        print('\033[91m' + 'Argument Error!\nUsage: '
+                           'python rnd_image_bot.py [min_wait_time] [max_wait_time]'
+                           '\033[0m')
         exit(1)
 
     min_wait = None
