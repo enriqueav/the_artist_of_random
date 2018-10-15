@@ -70,7 +70,7 @@ class Rectangle(SimpleShape):
             cv2.rectangle(img, tuple(coord[0:2]), tuple(coord[2:4]), self.color, -1)
             if self.outline:
                 cv2.rectangle(
-                    img, tuple(coord[0:2]), tuple(coord[2:4]),self.outline, self.thickness
+                    img, tuple(coord[0:2]), tuple(coord[2:4]), self.outline, self.thickness
                 )
             coord += self.x_offset
 

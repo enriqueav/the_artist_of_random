@@ -47,6 +47,6 @@ if __name__ == "__main__":
             image_path = pre + "_number%d" % i
 
         random_image(file_name=image_path,
-                     dont_show=args.dont_show or args.quantity>1,
+                     dont_show=args.dont_show or args.quantity > 1,
                      debug=args.debug,
                      seed=seed)

@@ -88,5 +88,3 @@ def random_image(file_name=None, dont_show=False, debug=False, seed=None):
         cv2.imshow('image', img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-
-

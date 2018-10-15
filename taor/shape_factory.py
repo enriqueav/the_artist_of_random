@@ -120,7 +120,7 @@ class ShapeFactory(object):
                 self.config["s_polygon_points"],
                 p=self.config["p_polygon_points"]
             )
-            shape = Polygon(self.get_coordinates(n_points),color, outline)
+            shape = Polygon(self.get_coordinates(n_points), color, outline)
         elif shape_type == "l":
             shape = Lasso(self.get_coordinates(2), color, thickness=self.get_thickness())
         elif shape_type == "x":
