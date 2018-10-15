@@ -4,4 +4,4 @@ exclude =
     .git,
     __pycache__,
     taor/examples/,
-    venv/
+    env/

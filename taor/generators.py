@@ -1,11 +1,12 @@
 import numpy as np
 from taor.shapes import BaseShape
 from numpy.random import choice, randint
+import cv2
 
 
 class Generator(BaseShape):
-    def __init__(self, coordinates, color, outline=None):
-        super().__init__(coordinates, color, outline=None)
+    def __init__(self, coordinates, color, outline=None, thickness=1):
+        super().__init__(coordinates, color, outline=None, thickness=thickness)
 
         self.origin = coordinates
         self.paint_coordinates = coordinates
@@ -26,8 +27,9 @@ class Generator(BaseShape):
         self.s['p_change_color_every_step'] = [0.7, 0.3]
         # COLOR JUMP
         self.s['change_color_jump_every_step'] = choice([True, False], p=[0.5, 0.5])
-        self.s['min_color_jump'] = randint(0, 11)
+        self.s['min_color_jump'] = randint(1, 11)
         self.s['max_color_jump'] = randint(self.s['min_color_jump']+1, 41)
+
         self.s['color_jump'] = randint(self.s['min_color_jump'], self.s['max_color_jump'])
 
         # ALPHA
@@ -56,11 +58,10 @@ class Generator(BaseShape):
         if self.s['change_color']:
             jump = self.s['color_jump']
             if self.s['change_color_unison']:
-                while not (nr+ng+nb == 0 or nr+ng+nb == 255*3):
-                    delta = randint(-jump, jump+1)
-                    nr = Generator.validate_cc(nr + delta)
-                    ng = Generator.validate_cc(ng + delta)
-                    nb = Generator.validate_cc(nb + delta)
+                delta = randint(-jump, jump+1)
+                nr = Generator.validate_cc(nr + delta)
+                ng = Generator.validate_cc(ng + delta)
+                nb = Generator.validate_cc(nb + delta)
             else:
                 if choice([False, True], p=self.s['p_change_color_every_step']):
                     nr = Generator.validate_cc(nr + randint(-jump, jump + 1))
@@ -76,7 +77,7 @@ class Generator(BaseShape):
                 )
         return nr, ng, nb, alpha
 
-    def new_step(self, draw):
+    def new_step(self, img):
         # SHAKINESS
         x, y = self.coordinates
         if self.s['use_shakiness']:
@@ -85,15 +86,26 @@ class Generator(BaseShape):
         self.paint_coordinates = [x, y, x + self.s['size'], y + self.s['size']]
 
         if self.s['shape'] == "circle":
-            draw.ellipse(self.paint_coordinates, self.color, self.outline)
+            if self.outline:
+                cv2.circle(img, tuple(self.paint_coordinates[0:2]),
+                           self.s['size'], self.outline, self.thickness)
+            else:
+                cv2.circle(img, tuple(self.paint_coordinates[0:2]),
+                           self.s['size'], self.color, -1)
         if self.s['shape'] == "rectangle":
-            draw.rectangle(self.paint_coordinates, self.color, self.outline)
+            if self.outline:
+                cv2.rectangle(img, tuple(self.paint_coordinates[0:2]),
+                              tuple(self.paint_coordinates[2:4]), self.outline, self.thickness)
+            else:
+                cv2.rectangle(img, tuple(self.paint_coordinates[0:2]),
+                              tuple(self.paint_coordinates[2:4]), self.color, -1)
 
         # CHANGE COLOR
         self.color = self.adjust_color(self.color)
         self.outline = self.adjust_color(self.outline)
 
         # CHANGE SIZE
+
         if self.s['change_size_every_step']:
             self.s['size'] = randint(self.s['min_size'], self.s['max_size'])
 
@@ -125,8 +137,8 @@ class Lasso(Generator):
     """
     Lasso class. Experimental
     """
-    def __init__(self, coordinates, color, outline=None):
-        super().__init__(coordinates, color, outline=outline)
+    def __init__(self, coordinates, color, outline=None, thickness=1):
+        super().__init__(coordinates, color, outline=outline, thickness=thickness)
 
         self.s['quantity'] = randint(100, 10000)
 
@@ -152,9 +164,12 @@ class Lasso(Generator):
         # initial state
         self.s['direction'] = randint(0, 360)
 
-    def draw(self, draw):
+    def __str__(self):
+        return "lasso"
+
+    def draw(self, img):
         for _ in range(self.s['quantity']):
-            self.new_step(draw)
+            self.new_step(img)
 
             delta = [
                 np.cos(np.radians(self.s['direction'])),
@@ -178,8 +193,8 @@ class Explosion(Generator):
     """
     Explosion class. Experimental
     """
-    def __init__(self, coordinates, color, outline=None):
-        super().__init__(coordinates, color, outline=outline)
+    def __init__(self, coordinates, color, outline=None, thickness=1):
+        super().__init__(coordinates, color, outline=outline, thickness=thickness)
         self.s['quantity'] = randint(100, 10000)
         self.s['p_shapes'] = [0.4, 0.6]
         self.s['shape'] = choice(self.s['s_shapes'], p=self.s['p_shapes'])
@@ -196,9 +211,12 @@ class Explosion(Generator):
         self.direction = randint(0, 360)
         self.distance = choice([0, randint(1, 100)])
 
-    def draw(self, draw):
+    def __str__(self):
+        return "explosion"
+
+    def draw(self, img):
         for _ in range(self.s['quantity']):
-            self.new_step(draw)
+            self.new_step(img)
 
             if self.s['change_angle_jump_every_step']:
                 self.s['angle_jump'] = randint(1, self.s['max_angle_jump']+1)
@@ -218,17 +236,20 @@ class StainGrid(Generator):
     """
     StainGrid class. Experimental
     """
-    def __init__(self, coordinates, color, outline=None):
-        super().__init__(coordinates, color, outline=outline)
+    def __init__(self, coordinates, color, outline=None, thickness=1):
+        super().__init__(coordinates, color, outline=outline, thickness=thickness)
         self.s['quantity'] = randint(1000, 100000)
         self.s['shape'] = choice(self.s['s_shapes'], p=[0.6, 0.4])
         self.s['size'] = randint(2, 31)
         self.s['space_jump'] = randint(1, self.s['size']*4)
         # pprint.pprint(self.s)
 
-    def draw(self, draw):
+    def __str__(self):
+        return "staingrid"
+
+    def draw(self, img):
         for _ in range(self.s['quantity']):
-            self.new_step(draw)
+            self.new_step(img)
             direction = randint(0, 8)
             delta = Generator.get_delta(direction)
             self.coordinates[0] += delta[0] * self.s['space_jump']
@@ -239,8 +260,8 @@ class Worm(Generator):
     """
     Worm class. Experimental
     """
-    def __init__(self, coordinates, color, outline=None):
-        super().__init__(coordinates, color, outline=outline)
+    def __init__(self, coordinates, color, outline=None, thickness=1):
+        super().__init__(coordinates, color, outline=outline, thickness=thickness)
         self.s['quantity'] = randint(1000, 10000)
         self.s['p_shapes'] = [0.5, 0.5]
         self.s['shape'] = choice(self.s['s_shapes'], p=self.s['p_shapes'])
@@ -264,11 +285,11 @@ class Worm(Generator):
         # pprint.pprint(self.s)
 
     def __str__(self):
-        return "stain"
+        return "worm"
 
-    def draw(self, draw):
-        for _ in range(self.s['quantity']):
-            self.new_step(draw)
+    def draw(self, img):
+        for i in range(self.s['quantity']):
+            self.new_step(img)
 
             delta = choice(self.s['s_change_direction'],
                            p=self.s['p_change_direction'])
