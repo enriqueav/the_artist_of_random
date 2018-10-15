@@ -33,7 +33,7 @@ config = dict(
 )
 
 
-def random_image(file_name=None, dont_show=False, debug=False, seed=None):
+def random_image(file_name=None, dont_show=True, debug=False, seed=None):
     """
     image
 
