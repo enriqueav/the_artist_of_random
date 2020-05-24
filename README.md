@@ -1,7 +1,6 @@
 # The Artist of Random V2.0
 
 This is the code behind the twitter-bot [@the_random_art](https://twitter.com/the_random_art).
-Also, now featured on my [Medium story](https://medium.com/@monocasero/a-useless-twitter-bot-probably-boosted-my-career-72bb3cd91701).
 
 ![alt text](https://pbs.twimg.com/media/DnM9a4lU0AALj19.jpg "Logo")
 
